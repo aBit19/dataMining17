@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/First Lab/First Lab.iml" filepath="$PROJECT_DIR$/First Lab/First Lab.iml" />
+      <module fileurl="file://$PROJECT_DIR$/apriori/apriori.iml" filepath="$PROJECT_DIR$/apriori/apriori.iml" />
+      <module fileurl="file://$PROJECT_DIR$/classification/classification.iml" filepath="$PROJECT_DIR$/classification/classification.iml" />
+    </modules>
+  </component>
+</project>
