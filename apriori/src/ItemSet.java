@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 /***
  * The ItemSet class is used to store information concerning a single transaction.
@@ -57,5 +58,14 @@ public class ItemSet {
             if (set[i] != other.set[i])
                 return false;
         return set[set.length - 1] < other.set[set.length - 1];
+    }
+
+    public String toString() {
+        StringBuilder sb = new StringBuilder("{");
+        int i;
+        for (i = 0; i < set.length - 1; i++)
+            sb.append(String.valueOf(i)).append(", ");
+        sb.append(String.valueOf(set[i])).append("} ");
+        return sb.toString();
     }
 }
