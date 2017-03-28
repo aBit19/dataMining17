@@ -22,41 +22,44 @@ public class Apriori {
 
     public static void main( String[] args ) {
         final int supportThreshold = 42;
-        AssociationRule ass = new AssociationRule(new ItemSet(new int[]{1, 4}), new ItemSet(new int[]{2}), 0.3);
-        System.out.println(ass);
         Apriori apriori = new Apriori(BOOK_TRANSACTIONS);
-        List<AssociationRule> list = apriori.getItemsWithAbsoluteThreshold(4);
+        List<AssociationRule> list = apriori.getItemsWithAbsoluteThreshold(2);
+        for (AssociationRule rule : list)
+            System.out.println(rule.toString());
     }
 
     public List<AssociationRule> getItemsWithAbsoluteThreshold(int supportThreshold) {
         int k = 0;
-        HashMap<ItemSet, Integer> frequentItemSets = generateFrequentItemSetsLevel1(transactions, supportThreshold );
+        Map<ItemSet, Integer> frequentItemSets = generateFrequentItemSetsLevel1(transactions, supportThreshold ),
+        tmp = null;
         cache.putAll(frequentItemSets);
         for (k = 1; !frequentItemSets.isEmpty(); k++) {
             System.out.print( "Finding frequent itemsets of length " + (k + 1) + "…" );
-            frequentItemSets = generateFrequentItemSets(frequentItemSets, supportThreshold);
+            tmp = frequentItemSets;
+            frequentItemSets = generateFrequentItemSets(Collections.unmodifiableMap(frequentItemSets),
+                    supportThreshold);
             System.out.println( " found " + frequentItemSets.size() );
         }
-        List<AssociationRule> assocRules = calculateAssociationRules(frequentItemSets.keySet());
+        List<AssociationRule> assocRules = calculateAssociationRules(tmp.keySet());
         return assocRules;
     }
 
-    private HashMap<ItemSet, Integer> generateFrequentItemSets(HashMap<ItemSet, Integer> lowerLevelItemSets,
+    private Map<ItemSet, Integer> generateFrequentItemSets(Map<ItemSet, Integer> lowerLevelItemSets,
                                                                        int supportThreshold)
                     {
         // first generate candidate itemsets from the lower level itemsets
         List<ItemSet> candidates = getCandidatesFrom(lowerLevelItemSets);
-        HashMap<ItemSet, Integer> prunedFrequentItemSets = pruneStep(lowerLevelItemSets, candidates, supportThreshold);
+        Map<ItemSet, Integer> prunedFrequentItemSets = pruneStep(lowerLevelItemSets, candidates, supportThreshold);
          // now check the support for all candidates and add only those that have enough support to the set
 
         return prunedFrequentItemSets;
     }
 
-    private static List<ItemSet> getCandidatesFrom(HashMap<ItemSet, Integer> lowerLevelItemSets) {
+    private static List<ItemSet> getCandidatesFrom(Map<ItemSet, Integer> lowerLevelItemSets) {
         List<ItemSet> candidates = new ArrayList<>();
         ItemSet[] itemSets = lowerLevelItemSets.keySet().toArray(new ItemSet[lowerLevelItemSets.keySet().size()]);
-        for (int i = 0; i < itemSets.length; i++) {
-            for (int j = i; j < itemSets.length; j++) {
+        for (int i = 0; i < itemSets.length - 1; i++) {
+            for (int j = i + 1; j < itemSets.length; j++) {
                 if (itemSets[i].isJoinableWith(itemSets[j])) {
                     candidates.add(joinStep(itemSets[i], itemSets[j]));
                 }
@@ -70,27 +73,33 @@ public class Apriori {
         // Assume that are joinable using the isJoinable method in the ItemSet class.
         int[] firstArr = first.set,
                 join = new int[firstArr.length + 1];
-        for (int i = 0; i < firstArr.length; i++)
+        for (int i = 0; i < firstArr.length - 1; i++)
             join[i] = firstArr[i];
-        join[firstArr.length] = second.set[firstArr.length - 1];
-
+        int f = firstArr[firstArr.length - 1], s = second.set[firstArr.length - 1];
+        if (s < f) {
+            int tmp = f;
+            f = s;
+            s = tmp;
+        }
+        join[join.length - 2] = f;
+        join[join.length - 1] = s;
         return new ItemSet(join);
     }
 
-    private HashMap<ItemSet, Integer> pruneStep(HashMap<ItemSet, Integer> priorKnowledge,
+    private Map<ItemSet, Integer> pruneStep(Map<ItemSet, Integer> priorKnowledge,
                                                        List<ItemSet> candidates,
                                                        int supportThreshold) {
-        Map<ItemSet, Integer> conc = new ConcurrentHashMap<>();
+        Map<ItemSet, Integer> conc = new HashMap<>();
         candidates.stream()
                 //.parallel()
                 .forEach(is ->
                 {
                     int count;
-                    if (subsetTest(priorKnowledge, is) && (count = countSupport(is.set)) >
+                    if (subsetTest(priorKnowledge, is) && (count = countSupport(is.set)) >=
                             supportThreshold)
                         conc.put(is, count);
                 });
-        return new HashMap<>(conc);
+        return conc;
     }
     /***
      * The method calculates the candidate's subsets with size k - 1 , where k is the candidate's itemset size.
@@ -98,7 +107,7 @@ public class Apriori {
      * @param candidate
      * @return true if all @candidate's subsets having size k - 1 are also frequent, false otherwise.
      */
-    private static  boolean subsetTest(HashMap<ItemSet, Integer> priorKnowledge, ItemSet candidate) {
+    private static  boolean subsetTest(Map<ItemSet, Integer> priorKnowledge, ItemSet candidate) {
         int[] set = candidate.set;
         ItemSet tmpItemset = new ItemSet(null);
 
@@ -115,10 +124,11 @@ public class Apriori {
             res[i] = arr1[i];
         for (int j = 0; j < arr2.length; j++)
             res[arr1.length + j] = arr2[j];
+        Arrays.sort(res);
         return res;
     }
 
-    private static HashMap<ItemSet, Integer> generateFrequentItemSetsLevel1( int[][] transactions, int
+    private static Map<ItemSet, Integer> generateFrequentItemSetsLevel1( int[][] transactions, int
             supportThreshold) {
         int[] array = new int[6];
 
@@ -126,9 +136,9 @@ public class Apriori {
             for (int i : arr)
                 array[i]++;
 
-        HashMap<ItemSet, Integer> table = new HashMap<>();
+        Map<ItemSet, Integer> table = new HashMap<>();
         for (int i = 0; i < array.length; i++)
-            if (array[i] > supportThreshold)
+            if (array[i] >= supportThreshold)
                 table.put(new ItemSet(new int[]{i}), new Integer(array[i]));
 
         return table;
@@ -157,8 +167,8 @@ public class Apriori {
 
     private List<AssociationRule> calculateAssociationRules(Collection<ItemSet> frequentItems) {
         List<AssociationRule> associationRules =  new ArrayList<>(frequentItems.size());
-        for (ItemSet itemSet : frequentItems) {
-            associationRules.addAll(getConfidenceFor(itemSet));
+        for (ItemSet frequentItem: frequentItems) {
+            associationRules.addAll(getConfidenceFor(frequentItem));
         }
         return associationRules;
     }
@@ -168,7 +178,7 @@ public class Apriori {
         ItemSet dependent;
         double prob, countSupport = cache.get(frequentItem);
         for (ItemSet subset: getSubsets(frequentItem)) {
-            prob = cache.get(countSupport)/cache.get(subset);
+            prob = countSupport/cache.get(subset);
             if (prob > minConf) {
                 dependent = difference(frequentItem, subset);
                 list.add(new AssociationRule(subset, dependent, prob));
@@ -178,9 +188,7 @@ public class Apriori {
     }
 
     private Iterable<ItemSet> getSubsets(ItemSet itemSet) {
-        List<ItemSet> subsets = new ArrayList<>();
-        //TODO: Generate Subsets
-        return subsets;
+        return itemSet.getSubsets();
     }
 
     private static ItemSet difference(ItemSet itemSet, ItemSet itemSubset) {
@@ -188,14 +196,15 @@ public class Apriori {
         if (set.length <= subsetSet.length)
             throw new IllegalArgumentException(itemSet + " must be a proper superset of "+ itemSubset);
         int[] diff = new int[set.length - subsetSet.length];
+        int count =0;
         for (int i = 0; i < set.length; i++) {
             if (Arrays.binarySearch(subsetSet, set[i]) < 0) {
-                diff[i] = set[i];
+                diff[count++] = set[i];
             }
-
         }
         return new ItemSet(diff);
     }
+
 
     private static class AssociationRule {
         private final ItemSet given, dependent;
@@ -208,7 +217,8 @@ public class Apriori {
         }
 
         public String toString() {
-            return given.toString() + " => " + dependent.toString() + " with confidence: " + String.valueOf(confidence);
+            return given.toString() + "=> " + dependent.toString() + "with confidence: " + String.valueOf
+                    (confidence);
         }
     }
 }
