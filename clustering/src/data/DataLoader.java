@@ -1,18 +1,16 @@
 package data;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class DataLoader {
 
-	/**
-	 * @param args
-	 */
 	public static ArrayList<Iris> LoadAllIrisData() {
 		ArrayList<Iris> data = new ArrayList<>();
-		
+		System.out.println(new File(".").getAbsolutePath());
 		try {
-			String[][] dataOrig = CSVFileReader.readDataFile("iris.csv",",","",true);
+			String[][] dataOrig = CSVFileReader.readDataFile("clustering/iris.csv",",","",true);
 			
 			for(int i = 0; i < dataOrig.length; i++)
 			{
