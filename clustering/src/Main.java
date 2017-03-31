@@ -17,7 +17,7 @@ public class Main {
 		ArrayList<Iris> irisData = DataLoader.LoadAllIrisData();
 		
 		//Second step --> do the clustering using k-means!
-		List<KMeanCluster> FoundClusters_KMeans = KMeans.KMeansPartition(4, irisData);
+		List<KMeanCluster> FoundClusters_KMeans = KMeans.KMeansPartition(3, irisData);
 		FoundClusters_KMeans.forEach(System.out::println);
 		//Third step --> do the clustering using k-medoids!
 		ArrayList<KMedoidCluster> FoundClusters_KMedoids = KMedoid.KMedoidPartition(3, irisData);

@@ -15,10 +15,7 @@ public class KMeans {
         List<KMeanCluster> clusters = tuple.initialClusters, prev = null;
         List<Iris> remIrises = tuple.remainingIrises;
         while (!clusters.equals(prev)) {
-            prev = clusters
-                    .stream()
-                    .map(cl -> new KMeanCluster(cl.getMembersAndClear()))
-                    .collect(Collectors.toList());
+            prev = getSnapshotOfAndClear(clusters);
             for (Iris iris : remIrises) {
                 double minDist = Double.POSITIVE_INFINITY, tmp;
                 KMeanCluster minCluster = null;
@@ -37,6 +34,12 @@ public class KMeans {
         return clusters;
 	}
 
+	private static List<KMeanCluster> getSnapshotOfAndClear(List<KMeanCluster> clusters) {
+        return clusters
+                .stream()
+                .map(cl -> new KMeanCluster(cl.getMembersAndClear()))
+                .collect(Collectors.toList());
+    }
 	private static Tuple getKInitialClustersFrom(int k, ArrayList<Iris> data) {
         return new Tuple(
                 data.subList(0, k)
