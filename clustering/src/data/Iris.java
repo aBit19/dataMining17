@@ -1,11 +1,6 @@
 package data;
 
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 public class Iris {
 
 	float sepalLength;
@@ -35,12 +30,13 @@ public class Iris {
 	}
 
 	public Iris getMean(Iris iris) {
-        return new Iris((sepalLength + iris.sepalLength/2),
-                        ((sepalWidth + sepalLength)/2),
-                        ((petalLength + petalLength)/2),
-                        ((petalWidth + iris.sepalWidth)/2),
+        return new Iris((sepalLength + iris.sepalLength)/2,
+                        (sepalWidth + iris.sepalWidth)/2,
+                        (petalLength + iris.petalLength)/2,
+                        (petalWidth + iris.petalWidth)/2,
                         Class);
     }
+
     public double getDistanceFrom(Iris iris) {
 	    return Math.sqrt(dist(sepalLength, iris.sepalLength) +
                          dist(sepalWidth, iris.sepalWidth) +
@@ -48,7 +44,19 @@ public class Iris {
                          dist(petalWidth, iris.sepalWidth));
     }
 
-
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (!(o instanceof Iris ))
+            return false;
+        Iris ir = (Iris) o;
+        return Class.equals(ir.Class)
+                && Float.compare(sepalLength, ir.sepalLength) == 0
+                && Float.compare(sepalWidth, ir.sepalWidth) == 0
+                && Float.compare(petalLength, ir.petalLength) == 0
+                && Float.compare(petalWidth, ir.petalWidth) == 0 ;
+    }
 
     private static float dist(float x, float y) {
         return (float) Math.pow(x - y, 2);
