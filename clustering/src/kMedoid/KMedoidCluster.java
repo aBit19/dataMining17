@@ -3,27 +3,26 @@ import java.util.ArrayList;
 import data.Iris;
 
 public class KMedoidCluster {
+    private final ArrayList<Iris> ClusterMembers;
+    private Iris Medoid;
 
-public ArrayList<Iris> ClusterMembers;
-public Iris Medoid;
-	
-public KMedoidCluster(Iris medoid)
-{
-	this.ClusterMembers = new ArrayList<Iris>();
-	this.Medoid = medoid;
-}
+    public KMedoidCluster(Iris medoid) {
+        this.ClusterMembers = new ArrayList<>();
+        this.Medoid = medoid;
+    }
 	
 	@Override
 	public String toString() {
-		String toPrintString = "-----------------------------------CLUSTER START------------------------------------------" + System.getProperty("line.separator");
-		toPrintString += "Medoid: "+this.Medoid.toString() + System.getProperty("line.separator");
+		StringBuilder sb = new StringBuilder( "-----------------------------------CLUSTER START------------------------------------------" + System.getProperty("line.separator"))
+                .append("Medoid: "+this.Medoid.toString() + System.getProperty("line.separator"));
+
 		for(Iris i : this.ClusterMembers)
-		{
-			toPrintString += i.toString() + System.getProperty("line.separator");
-		}
-		toPrintString += "-----------------------------------CLUSTER END-------------------------------------------" + System.getProperty("line.separator");
+			sb.append(i.toString()).append(System.getProperty("line.separator"));
+
+		 sb.append("-----------------------------------CLUSTER END-------------------------------------------" + System
+                .getProperty("line.separator"));
 		
-		return toPrintString;
+		return sb.toString();
 	}
 	
 }

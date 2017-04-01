@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import data.*;
+import util.Tuple;
 
 
 public class KMeans {
@@ -11,9 +12,9 @@ public class KMeans {
     private KMeans() {}
 
 	public static List<KMeanCluster> KMeansPartition(int k, ArrayList<Iris> data) {
-        Tuple tuple = getKInitialClustersFrom(k, data);
-        List<KMeanCluster> clusters = tuple.initialClusters, prev = null;
-        List<Iris> remIrises = tuple.remainingIrises;
+        Tuple tuple = Tuple.getKInitialClustersFrom(KMeanCluster::new, k, data);
+        List<KMeanCluster> clusters = tuple.getInitialClusters(), prev = null;
+        List<Iris> remIrises = tuple.getRemainingIrises();
         while (!clusters.equals(prev)) {
             prev = getSnapshotOfAndClear(clusters);
             for (Iris iris : remIrises) {
@@ -39,23 +40,5 @@ public class KMeans {
                 .stream()
                 .map(cl -> new KMeanCluster(cl.getMembersAndClear()))
                 .collect(Collectors.toList());
-    }
-	private static Tuple getKInitialClustersFrom(int k, ArrayList<Iris> data) {
-        return new Tuple(
-                data.subList(0, k)
-                        .stream()
-                        .map(KMeanCluster::new)
-                        .collect(Collectors.toList()),
-                data.subList(k, data.size())
-        );
-    }
-
-    private static class Tuple {
-        private final List<Iris> remainingIrises;
-        private final List<KMeanCluster> initialClusters;
-        Tuple(List<KMeanCluster> initialClusters, List<Iris> remainingIrises) {
-            this.initialClusters = initialClusters;
-            this.remainingIrises = remainingIrises;
-        }
     }
 }
