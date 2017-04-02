@@ -38,6 +38,8 @@ public class Iris {
     }
 
     public double getDistanceFrom(Iris iris) {
+	    if (iris == this)
+	        return 0;
 	    return Math.sqrt(dist(sepalLength, iris.sepalLength) +
                          dist(sepalWidth, iris.sepalWidth) +
                          dist(petalLength, iris.petalLength) +

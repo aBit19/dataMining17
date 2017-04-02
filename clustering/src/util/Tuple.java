@@ -25,7 +25,7 @@ public class Tuple<T> {
         return remainingIrises;
     }
 
-    public static<T> Tuple getKInitialClustersFrom(Function<Iris, T> f, int k, ArrayList<Iris> data) {
+    public static<T> Tuple getKInitialClustersAndRemainingObjectsFrom(int k, ArrayList<Iris> data, Function<Iris, T> f) {
         return new Tuple(
                 data.subList(0, k)
                         .stream()

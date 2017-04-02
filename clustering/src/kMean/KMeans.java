@@ -12,7 +12,7 @@ public class KMeans {
     private KMeans() {}
 
 	public static List<KMeanCluster> KMeansPartition(int k, ArrayList<Iris> data) {
-        Tuple tuple = Tuple.getKInitialClustersFrom(KMeanCluster::new, k, data);
+        Tuple tuple = Tuple.getKInitialClustersAndRemainingObjectsFrom(k, data, KMeanCluster::new);
         List<KMeanCluster> clusters = tuple.getInitialClusters(), prev = null;
         List<Iris> remIrises = tuple.getRemainingIrises();
         while (!clusters.equals(prev)) {
@@ -21,7 +21,7 @@ public class KMeans {
                 double minDist = Double.POSITIVE_INFINITY, tmp;
                 KMeanCluster minCluster = null;
                 for (KMeanCluster cluster : clusters) {
-                    if ((tmp = cluster.distFromCentroid(iris)) < minDist) {
+                    if ((tmp = cluster.getDistFromCentroidTo(iris)) < minDist) {
                         minDist = tmp;
                         minCluster = cluster;
                     }

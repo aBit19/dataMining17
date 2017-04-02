@@ -25,7 +25,7 @@ public class KMeanCluster {
 	    clusterMembers.add(iris);
     }
 
-    public double distFromCentroid(Iris iris) {
+    public double getDistFromCentroidTo(Iris iris) {
 	    return centroid.getDistanceFrom(iris);
     }
 
