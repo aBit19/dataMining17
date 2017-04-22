@@ -14,26 +14,16 @@ final public class KMedoid {
         Tuple tuple = Tuple.getKInitialClustersAndRemainingObjectsFrom(k, data, KMeanCluster::new);
         List<KMedoidCluster> clusters = tuple.getInitialClusters();
         List<Iris> remIrises = tuple.getRemainingIrises();
-        assignObjectsToClosestCluster(remIrises, clusters);
 
         double prevCost = Double.MAX_VALUE, newCost = 0.0;
         while (prevCost != newCost) {
-            for (Iris iris : data) {
-                for (KMedoidCluster cluster : clusters) {
-                    if (!cluster.isRepresantitiveObject(iris)) {
-                        prevCost = getCostAndClear(clusters);
-                        Iris tmp = cluster.getAndSetMedoid(iris);
-                        assignObjectsToClosestCluster(data, clusters);
-                        newCost = getCostOf(clusters);
-                        if (newCost <= prevCost) {
-                            List<Iris> members = cluster.getMembersAndClear();
-                            assignObjectsToClosestCluster(members, clusters);
-                        } else {
-                            cluster.getAndSetMedoid(tmp);
-                            assignObjectsToClosestCluster(data, clusters);
-                        }
-                    }
-                }
+            assignObjectsToClosestCluster(remIrises, clusters);
+            Iris random = getNonRepresentantiveObject(data, clusters);
+            for (KMedoidCluster cluster : clusters) {
+                prevCost = getCostAndClear(clusters);
+                Iris tmp = cluster.getAndSetMedoid(random);
+                assignObjectsToClosestCluster(data, clusters);
+                newCost = getCostOf(clusters);
             }
         }
 	    return null;
@@ -52,6 +42,13 @@ final public class KMedoid {
         }
     }
 
+    private static Iris getNonRepresentantiveObject(List<Iris> objects, List<KMedoidCluster> clusters) {
+        return objects.stream().
+                filter(iris -> clusters
+                        .stream()
+                        .allMatch(cluster -> !cluster.isRepresantitiveObject(iris)))
+                .findFirst().get();
+    }
     private static double getCostOf(List<KMedoidCluster> clusters) {
         return getCostAnd(clusters, KMedoidCluster::getCost);
     }
