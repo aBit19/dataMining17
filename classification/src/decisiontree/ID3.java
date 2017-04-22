@@ -54,8 +54,8 @@ public class ID3 {
 
     public static void main(String[] args) {
         List<Mushroom> data =Util.getData(),
-        trainingSet = data.subList(0, 2500),
-                testSet = data.subList(2500, 3000);
+        trainingSet = data.subList(0, 2000),
+                testSet = data.subList(2000, 3000);
         ID3 id3 = new ID3(trainingSet, Mushroom.getAttributeList());
         Tree tree = id3.getTree();
 

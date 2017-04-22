@@ -16,7 +16,7 @@ public class Main {
 	 */
 	public static void main(String[] args)  throws IOException{
 		// First step - Load data and convert to data.Mushroom objects.
-		for (int i = 1; i <= 20 ; i++) {
+		for (int i = 1; i <= 40 ; i++) {
 
 			List<Mushroom> mushrooms = Util.getData();
 			List<Mushroom> trainingSet = mushrooms.subList(0, 2000),
